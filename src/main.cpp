@@ -5,6 +5,7 @@
 byte error;
 int lineNum = 0;
 uint8_t message = 0x41; 
+bool sent = false;
 //char message[] = "Hello Kaden\0";
 //short mesLen;
 //byte val = 8;
@@ -18,7 +19,6 @@ void setup(){
 }
 
 void loop(){
-
     // Writing
     Wire.beginTransmission(ADDRESS);
     Wire.write(message);
@@ -29,14 +29,17 @@ void loop(){
     delay(1000);
 
     // READING
-    // Wire.requestFrom(ADDRESS,1);    //strlen(message)
-    // while (Wire.available()) {
-    //     byte data = Wire.read();  // Read the byte received
-    //     Serial.print("Data received: ");
-    //     Serial.println(data);
+    // if(sent){
+    //     Wire.requestFrom(ADDRESS,1);    //strlen(message)
+    //     while (Wire.available()) {
+    //         byte data = Wire.read();  // Read the byte received
+    //         Serial.print("Data received: ");
+    //         Serial.println(data);
+    //     }
     // }
 
-    delay(1000);  // Wait for a second before requesting again
+
+    //delay(1000);  // Wait for a second before requesting again
 
     // WHATEVER THIS IS
     //char retMes[mesLen];
@@ -58,6 +61,7 @@ void checkError(byte error){
     switch(error) {
         case 0:
             Serial.println("Transmission successful");
+            sent = true;
             break;
         case 1:
             Serial.println("NACK on transmit of address");
