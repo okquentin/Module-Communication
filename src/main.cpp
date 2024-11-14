@@ -1,56 +1,60 @@
 #include <Arduino.h>
 #include <Wire.h>
 
-#define ADDRESS 0x41        // slave address
-//short mesLen;
-//byte val = 8;
+#define ADDRESS 0x41  // slave address
+#define SDA 21
+#define SDL 22
+#define FREQUENCY 400000
 
 void setup(){
-    Wire.begin(21, 22);
-    Wire.setClock(400000);
+    // set up SDA and SDL
+    Wire.begin();
+    Wire.setPins(SDA, SDL);
 
+    Wire.setClock(FREQUENCY);
     Serial.begin(115200);
 }
 
 void loop(){
-    //char message[] = "Hello Kaden\0";
-
+    // the byte to be sent to pi pico
     uint8_t message = 0x15;
 
-    Wire.beginTransmission(ADDRESS);
     // send the data
+    Wire.beginTransmission(ADDRESS);
     Wire.write(message);
-    Wire.endTransmission();
-    if (Wire.endTransmission() != 0) {
-        Serial.println("Transmission failed");
-    } else {
-        Serial.println("Data Sent");
+
+    // check for errors in transmission
+    int error = Wire.endTransmission();
+    switch(error) {
+        case 0:
+            Serial.println("Transmission successful");
+            break;
+        case 1:
+            Serial.println("NACK on transmit of address");
+            break;
+        case 2:
+            Serial.println("NACK after transmit of data byte");
+            break;
+        case 3:
+            Serial.println("Master mode function disallowed");
+            break;
+        case 4:
+            Serial.println("Bus error");
+            break;
+        case 5:
+            Serial.println("Overrun error");
+            break;
+        default:
+            Serial.println("Unknown error");
     }
 
     delay(1000);
 
-    Wire.requestFrom(ADDRESS,1);    //strlen(message)
+    Wire.requestFrom(ADDRESS,1);
 
-    while (Wire.available()) {
-        byte data = Wire.read();  // Read the byte received
-        Serial.print("Data received: ");
-        Serial.println(data);
-    }
+    byte data = Wire.read();  // Read the byte received
+    Serial.print("Data received: ");
+    Serial.println(data);
 
-    delay(1000);  // Wait for a second before requesting again
-    //char retMes[mesLen];
-
-    // int index = 0;
-    // if (Wire.available()){
-    //     while(Wire.available()){
-    //     retMes[index] = Wire.read();
-    //     index++;
-    //     }
-    //     retMes[index] = '\0';
-
-    //     Serial.println("Data Received");
-    //     Serial.println(retMes);
-    // }
-
-    //delay(1000);
+    delay(1000);
 }
